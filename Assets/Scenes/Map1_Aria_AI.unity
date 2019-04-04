@@ -1193,11 +1193,9 @@ GameObject:
   - component: {fileID: 548082215}
   m_Layer: 0
   m_Name: Player
-<<<<<<< HEAD:Assets/Scenes/Map1.unity
   m_TagString: MoveableEntity
 =======
   m_TagString: Player
->>>>>>> AI:Assets/Scenes/Map1_Aria_AI.unity
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
