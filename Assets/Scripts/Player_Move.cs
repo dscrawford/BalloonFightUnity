@@ -4,19 +4,16 @@ using UnityEngine;
 
 public class Player_Move : MonoBehaviour
 {
-    public int playerSpeed = 1;
+    public int playerSpeed = 10;
     public int playerJumpPower = 20;
     public float maxYVelocity = 5;
 
-    BoxCollider2D leftwall, rightwall;
-    private float moveX, moveY;
+     private float moveX, moveY;
     private bool facingRight = false;
 
     // Start is called before the first frame update
     void Start()
-    {
-        leftwall = GameObject.Find("LeftWall").GetComponent<BoxCollider2D>();
-    }
+    {}
 
     // Update is called once per frame
     void Update()
@@ -78,5 +75,10 @@ public class Player_Move : MonoBehaviour
     public void ChangePosition(Vector3 pos)
     {
         this.transform.position = pos;
+    }
+
+    public void ChangeVelocity(Vector3 pos)
+    {
+        gameObject.GetComponent<Rigidbody2D>().velocity = pos;
     }
 }

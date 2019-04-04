@@ -118,7 +118,7 @@ public class BasicEnemy1 : MonoBehaviour
             isBlowingUpBalloon = false;
 
             randChoice = rand.Next(101); //Chooses a # between 0 and 100.
-            Debug.Log(randChoice);
+            //Debug.Log(randChoice);
             if (randChoice > 90) //10% chance
             {
                 movePath = 4;
@@ -135,7 +135,7 @@ public class BasicEnemy1 : MonoBehaviour
             {
                 movePath = 1;
             }
-            Debug.Log(movePath);
+            //Debug.Log(movePath);
         }
 
         moveCounter++;

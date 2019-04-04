@@ -19,7 +19,6 @@ public class Left_LoopEffect : MonoBehaviour
 
     private void OnTriggerStay2D(Collider2D collision)
     {
-        Debug.Log("Collider pos: " + collision.gameObject.GetComponent<Player_Move>().getMoveX());
         if (collision.tag == "MoveableEntity")
         {
             if (collision.gameObject.GetComponent<Player_Move>().getMoveX() < 0) {
