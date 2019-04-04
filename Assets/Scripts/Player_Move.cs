@@ -5,21 +5,28 @@ using UnityEngine;
 public class Player_Move : MonoBehaviour
 {
     public int playerSpeed = 1;
-    public bool facingRight = false;
     public int playerJumpPower = 20;
     public float maxYVelocity = 5;
 
+    BoxCollider2D leftwall, rightwall;
     private float moveX, moveY;
+    private bool facingRight = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        leftwall = GameObject.Find("LeftWall").GetComponent<BoxCollider2D>();
     }
 
     // Update is called once per frame
     void Update()
     {
         PlayerMove();
+    }
+
+    public float getMoveX()
+    {
+        return moveX;
     }
 
     void PlayerMove()
@@ -33,11 +40,11 @@ public class Player_Move : MonoBehaviour
         //Animation
 
         //Player Direction
-        if (moveX < 0.0f && !facingRight)
+        if (moveX < 0.0f && facingRight)
         {
             FlipPlayer();
         }
-        else if (moveX > 0.0f && facingRight)
+        else if (moveX > 0.0f && !facingRight)
         {
             FlipPlayer();
         }
@@ -66,5 +73,10 @@ public class Player_Move : MonoBehaviour
         Vector2 localScale = gameObject.transform.localScale;
         localScale.x *= -1;
         transform.localScale = localScale;
+    }
+
+    public void ChangePosition(Vector3 pos)
+    {
+        this.transform.position = pos;
     }
 }
