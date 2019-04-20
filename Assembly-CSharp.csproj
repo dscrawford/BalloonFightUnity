@@ -53,11 +53,14 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-     <Compile Include="Assets\AriasStuff\BasicEnemy1.cs" />
-     <Compile Include="Assets\AriasStuff\Main_menu_play.cs" />
-     <Compile Include="Assets\AriasStuff\Player_health.cs" />
      <Compile Include="Assets\AriasStuff\Player_Move2.cs" />
+     <Compile Include="Assets\Scripts\BasicEnemy1.cs" />
+     <Compile Include="Assets\Scripts\Enemy_Collisions.cs" />
+     <Compile Include="Assets\Scripts\Left_LoopEffect.cs" />
+     <Compile Include="Assets\Scripts\Main_menu_play.cs" />
+     <Compile Include="Assets\Scripts\Player_health.cs" />
      <Compile Include="Assets\Scripts\Player_Move.cs" />
+     <Compile Include="Assets\Scripts\Right_LoopEffect.cs" />
  <Reference Include="Unity.TextMeshPro.Editor">
  <HintPath>C:/Users/wryde/Documents/BalloonFightUnity/Library/ScriptAssemblies/Unity.TextMeshPro.Editor.dll</HintPath>
  </Reference>
