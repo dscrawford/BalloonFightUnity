@@ -5,7 +5,7 @@ using System;
 
 public class BasicEnemy1 : MonoBehaviour
 {
-    public Animation anim;
+    public Animator anim;
 
     public float EnemySpeedMAX = .5f;
     public float EnemySpeedMIN = .2f;

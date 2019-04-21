@@ -50,7 +50,7 @@ public class Player_Move : MonoBehaviour
             Jump();
         }
         //Animation
-        if(Input.GetButtonDown(KeyCode.Space))
+        if(Input.GetButtonDown("Jump"))
         {
             anim.SetBool("Jump", true);
         }
