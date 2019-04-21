@@ -4,16 +4,19 @@ using UnityEngine;
 
 public class Player_Move : MonoBehaviour
 {
-    public int playerSpeed = 1;
-    public bool facingRight = false;
+    public Animator anim;
+
+    public int playerSpeed = 10;
     public int playerJumpPower = 20;
     public float maxYVelocity = 5;
 
     private float moveX, moveY;
+    private bool facingRight = false;
 
     // Start is called before the first frame update
     void Start()
     {
+        anim = GetComponent<Animator>();
     }
 
     // Update is called once per frame
@@ -21,6 +24,22 @@ public class Player_Move : MonoBehaviour
     {
         PlayerMove();
     }
+
+    public float getMoveX()
+    {
+        return moveX;
+    }
+
+    void OnCollisionEnter()
+    {
+        //anim.SetBool("Ground", true);
+    }
+
+    void OnCollisionExit()
+    {
+        //anim.SetBool("Ground", false);
+    }
+
 
     void PlayerMove()
     {
@@ -31,13 +50,31 @@ public class Player_Move : MonoBehaviour
             Jump();
         }
         //Animation
+        if(Input.GetButtonDown(KeyCode.Space))
+        {
+            anim.SetBool("Jump", true);
+        }
+        else
+            anim.SetBool("Jump", false);
+        if (moveY != 0.0f) //NOT on ground Needs correction due to breif frame shifting from uplift to falling
+        {
+            anim.SetBool("Ground", false);
+        }
+        else
+            anim.SetBool("Ground", true);
+        if (moveX != 0.0f)
+        {
+            anim.SetBool("Move", true);
+        }
+        else
+            anim.SetBool("Move", false);
 
         //Player Direction
-        if (moveX < 0.0f && !facingRight)
+        if (moveX < 0.0f && facingRight)
         {
             FlipPlayer();
         }
-        else if (moveX > 0.0f && facingRight)
+        else if (moveX > 0.0f && !facingRight)
         {
             FlipPlayer();
         }
@@ -66,5 +103,15 @@ public class Player_Move : MonoBehaviour
         Vector2 localScale = gameObject.transform.localScale;
         localScale.x *= -1;
         transform.localScale = localScale;
+    }
+
+    public void ChangePosition(Vector3 pos)
+    {
+        this.transform.position = pos;
+    }
+
+    public void ChangeVelocity(Vector3 pos)
+    {
+        gameObject.GetComponent<Rigidbody2D>().velocity = pos;
     }
 }
