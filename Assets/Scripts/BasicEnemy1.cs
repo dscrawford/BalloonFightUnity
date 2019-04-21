@@ -7,7 +7,7 @@ public class BasicEnemy1 : MonoBehaviour
 {
     public Animator anim;
 
-    public float EnemySpeedMAX = .5f;
+    public float EnemySpeedMAX = .6f;
     public float EnemySpeedMIN = .2f;
     public float EnemyCurrentSpeed = .31f;
     public float speedIncrement = 0.01f;
@@ -30,12 +30,13 @@ public class BasicEnemy1 : MonoBehaviour
         anim = GetComponent<Animator>();
         target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>(); //SET THE PLAYER'S TAG TO "Player" IN THE INSPECTOR FOR THIS TO WORK.
         lastPos = gameObject.GetComponent<Rigidbody2D>().position;
+        gameObject.SetActive(false);
     }
     void Update()
     {
         //SPEED
         //increase enemy speed if it's farther away from the enemy.
-        if(Vector2.Distance(transform.position, target.position) > .13)
+        if(Vector2.Distance(transform.position, target.position) > .33)
         {
             if (EnemyCurrentSpeed < EnemySpeedMAX)
                 EnemyCurrentSpeed += speedIncrement;
@@ -53,13 +54,14 @@ public class BasicEnemy1 : MonoBehaviour
         lastPos = gameObject.GetComponent<Rigidbody2D>().position; //for direction purposes
 
         //ANIMATION
-
+        
 
         //PHYSICS
 
         if (movePath != 0 && !isBlowingUpBalloon)
         {
 
+            //Patrolling
             if (Vector2.Distance(transform.position, target.position) > .7 && !isChasing)
             {
 
@@ -98,7 +100,7 @@ public class BasicEnemy1 : MonoBehaviour
                     targetDest.y += .2f;
                     transform.position = Vector2.MoveTowards(transform.position, targetDest, EnemyCurrentSpeed * Time.deltaTime);
                 }
-                else if (Vector2.Distance(transform.position, target.position) < .3)
+                else if (Vector2.Distance(transform.position, target.position) < .3) //if player dodges enemy
                 {
 
                 }
