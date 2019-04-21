@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Player_Move : MonoBehaviour
 {
+    public Animator anim;
     public int playerSpeed = 10;
     public int playerJumpPower = 20;
     public float maxYVelocity = 5;
@@ -13,7 +14,9 @@ public class Player_Move : MonoBehaviour
 
     // Start is called before the first frame update
     void Start()
-    {}
+    {
+        anim = GetComponent<Animator>();
+    }
 
     // Update is called once per frame
     void Update()
@@ -35,6 +38,25 @@ public class Player_Move : MonoBehaviour
             Jump();
         }
         //Animation
+        if(Input.GetButtonDown("Jump"))
+        {
+            anim.SetBool("Jump", true);
+        }
+        else
+            anim.SetBool("Jump", false);
+
+        if (moveY != 0.0f) //NOT on ground Needs correction due to breif frame shifting from uplift to falling
+        {
+            anim.SetBool("Ground", false);
+        }
+        else
+            anim.SetBool("Ground", true);
+        if (moveX != 0.0f)
+        {
+            anim.SetBool("Move", true);
+        }
+        else
+            anim.SetBool("Move", false);
 
         //Player Direction
         if (moveX < 0.0f && facingRight)
