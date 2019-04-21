@@ -5,7 +5,7 @@ using UnityEngine;
 public class Enemy_Collisions : MonoBehaviour
 {
     private int currentHP = 2;
-    public int bounciness = 10;
+    public int bounciness = 1;
     // Start is called before the first frame update
     void Start()
     {
@@ -22,8 +22,11 @@ public class Enemy_Collisions : MonoBehaviour
     {
         if (collision.gameObject.tag == "Player")
         {
-            collision.gameObject.GetComponent<Player_Move>().ChangeVelocity(new Vector3(-collision.gameObject.GetComponent<Rigidbody2D>().velocity.x, bounciness, 0));
-            gameObject.GetComponent<Rigidbody2D>().velocity = new Vector3(-gameObject.GetComponent<Rigidbody2D>().velocity.x, -bounciness / 2, 0);
+            if (collision.gameObject.GetComponent<Player_Move>() != null)
+            {
+                collision.gameObject.GetComponent<Player_Move>().ChangeVelocity(new Vector3(-collision.gameObject.GetComponent<Rigidbody2D>().velocity.x, bounciness, 0));
+                gameObject.GetComponent<Rigidbody2D>().velocity = new Vector3(-gameObject.GetComponent<Rigidbody2D>().velocity.x, -bounciness / 2, 0);
+            }
         }
     }
 

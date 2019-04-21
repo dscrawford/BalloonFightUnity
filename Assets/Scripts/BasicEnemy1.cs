@@ -7,7 +7,7 @@ public class BasicEnemy1 : MonoBehaviour
 {
     public Animator anim;
 
-    public float EnemySpeedMAX = .6f;
+    public float EnemySpeedMAX = .5f;
     public float EnemySpeedMIN = .2f;
     public float EnemyCurrentSpeed = .31f;
     public float speedIncrement = 0.01f;
@@ -22,6 +22,11 @@ public class BasicEnemy1 : MonoBehaviour
     public int enemyJumpPower = 20;
     
 
+    public bool getFacingRight()
+    {
+        return facingRight;
+    }
+
     //The actual player
     public Transform target;
 
@@ -30,13 +35,12 @@ public class BasicEnemy1 : MonoBehaviour
         anim = GetComponent<Animator>();
         target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>(); //SET THE PLAYER'S TAG TO "Player" IN THE INSPECTOR FOR THIS TO WORK.
         lastPos = gameObject.GetComponent<Rigidbody2D>().position;
-        gameObject.SetActive(false);
     }
     void Update()
     {
         //SPEED
-        //increase enemy speed if it's farther away from the enemy.
-        if(Vector2.Distance(transform.position, target.position) > .33)
+        //increase enemy speed if it's farther away from the player.
+        if(Vector2.Distance(transform.position, target.position) > .13)
         {
             if (EnemyCurrentSpeed < EnemySpeedMAX)
                 EnemyCurrentSpeed += speedIncrement;
@@ -54,14 +58,13 @@ public class BasicEnemy1 : MonoBehaviour
         lastPos = gameObject.GetComponent<Rigidbody2D>().position; //for direction purposes
 
         //ANIMATION
-        
+
 
         //PHYSICS
 
         if (movePath != 0 && !isBlowingUpBalloon)
         {
 
-            //Patrolling
             if (Vector2.Distance(transform.position, target.position) > .7 && !isChasing)
             {
 
@@ -88,19 +91,19 @@ public class BasicEnemy1 : MonoBehaviour
             else
             {
                 isChasing = true;
-                gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+                //gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
                 if (Vector2.Distance(transform.position, target.position) > .7) //move towards character
                 {
-                    transform.position = Vector2.MoveTowards(transform.position, target.position, EnemyCurrentSpeed * Time.deltaTime);
+                    gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.MoveTowards(transform.position, target.position, EnemyCurrentSpeed * Time.deltaTime);
 
                 }
                 else if (Vector2.Distance(transform.position, target.position) < .7) //move towards the balloons
                 {
                     Vector2 targetDest = new Vector2(target.position.x, target.position.y);
                     targetDest.y += .2f;
-                    transform.position = Vector2.MoveTowards(transform.position, targetDest, EnemyCurrentSpeed * Time.deltaTime);
+                    gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.MoveTowards(transform.position, targetDest, EnemyCurrentSpeed * Time.deltaTime);
                 }
-                else if (Vector2.Distance(transform.position, target.position) < .3) //if player dodges enemy
+                else if (Vector2.Distance(transform.position, target.position) < .3)
                 {
 
                 }
@@ -160,6 +163,17 @@ public class BasicEnemy1 : MonoBehaviour
         localScale.x *= -1;
         transform.localScale = localScale;
     }
+
+    public void ChangePosition(Vector3 pos)
+    {
+        this.transform.position = pos;
+    }
+
+    public void ChangeVelocity(Vector3 pos)
+    {
+        gameObject.GetComponent<Rigidbody2D>().velocity = pos;
+    }
+
 
     // Update is called once per frame
     /*void Update()
