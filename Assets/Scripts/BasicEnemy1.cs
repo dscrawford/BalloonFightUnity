@@ -5,6 +5,7 @@ using System;
 
 public class BasicEnemy1 : MonoBehaviour
 {
+    public Animation anim;
 
     public float EnemySpeedMAX = .5f;
     public float EnemySpeedMIN = .2f;
@@ -26,6 +27,7 @@ public class BasicEnemy1 : MonoBehaviour
 
     void Start()
     {
+        anim = GetComponent<Animator>();
         target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>(); //SET THE PLAYER'S TAG TO "Player" IN THE INSPECTOR FOR THIS TO WORK.
         lastPos = gameObject.GetComponent<Rigidbody2D>().position;
     }

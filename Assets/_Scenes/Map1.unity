@@ -283,8 +283,9 @@ GameObject:
   - component: {fileID: 56179792}
   - component: {fileID: 56179796}
   - component: {fileID: 56179795}
+  - component: {fileID: 56179797}
   m_Layer: 0
-  m_Name: Enemy_Sprite
+  m_Name: Enemy
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -418,6 +419,24 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 0.16, y: 0.24}
   m_EdgeRadius: 0
+--- !u!114 &56179797
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 56179791}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 825e8087b724d8149a1bc54f6cafca15, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  EnemySpeedMAX: 0.5
+  EnemySpeedMIN: 0.2
+  EnemyCurrentSpeed: 0.31
+  speedIncrement: 0.01
+  enemyJumpPower: 20
+  target: {fileID: 0}
 --- !u!1 &184735152
 GameObject:
   m_ObjectHideFlags: 0
