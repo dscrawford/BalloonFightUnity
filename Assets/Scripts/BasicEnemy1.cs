@@ -20,7 +20,15 @@ public class BasicEnemy1 : MonoBehaviour
     bool isBlowingUpBalloon = true;
     bool isChasing = false;
     public int enemyJumpPower = 20;
-    
+    private int currentHP = 2;
+    public int bounciness = 1;
+    private bool isTouchingGround;
+    private bool justCollided;
+    private bool isKillable;
+    private int countCollider;
+    public float deathPos = -1;
+    public bool dead;
+
 
     public bool getFacingRight()
     {
@@ -35,6 +43,11 @@ public class BasicEnemy1 : MonoBehaviour
         anim = GetComponent<Animator>();
         target = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>(); //SET THE PLAYER'S TAG TO "Player" IN THE INSPECTOR FOR THIS TO WORK.
         lastPos = gameObject.GetComponent<Rigidbody2D>().position;
+        isTouchingGround = true;
+        justCollided = false;
+        isKillable = false;
+        dead = false;
+        countCollider = 0;
     }
     void Update()
     {
@@ -51,21 +64,44 @@ public class BasicEnemy1 : MonoBehaviour
                 EnemyCurrentSpeed -= speedIncrement;
         }
 
-        
+        //ANIMATION
+        if (lastPos.y < gameObject.GetComponent<Rigidbody2D>().position.y)
+        {
+            anim.SetBool("Ground", false);
+            anim.SetBool("Ascending", true);
+            
+            isTouchingGround = false;
+        }
+        else if (lastPos.y >= gameObject.GetComponent<Rigidbody2D>().position.y)
+            anim.SetBool("Ascending", false);
 
         //ENEMY FACING DIRECTION
         SwitchedDir();
         lastPos = gameObject.GetComponent<Rigidbody2D>().position; //for direction purposes
 
-        //ANIMATION
+
+
+        if(transform.position.y < deathPos)
+        {
+            this.gameObject.SetActive(false);
+        }
 
 
         //PHYSICS
-
-        if (movePath != 0 && !isBlowingUpBalloon)
+        if(dead)
+        {
+            
+            if (transform.position.y > deathPos)
+            {
+                gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -1f);
+            }
+            else
+                this.gameObject.SetActive(false);
+        }
+        else if (movePath != 0 && !isBlowingUpBalloon)
         {
 
-            if (Vector2.Distance(transform.position, target.position) > .7 && !isChasing)
+            if (Vector2.Distance(transform.position, target.position) >= .7 && !isChasing)
             {
 
                 if (movePath == 1) // idle
@@ -88,31 +124,64 @@ public class BasicEnemy1 : MonoBehaviour
                     GetComponent<Rigidbody2D>().AddForce(Vector2.up * enemyJumpPower);
                 }
             }
-            else
+            else if(justCollided)
+            {
+                gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;                
+                gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -.27f);
+
+                if (isTouchingGround)
+                {
+                    justCollided = false;
+                    anim.SetInteger("Hit", 0);
+                    anim.SetBool("Ground", true);
+                    anim.Play("e_pump");
+                }
+                
+            }
+            else if(isTouchingGround)
+            {
+                
+                //Debug.Log(countCollider);
+                if (++countCollider > 50)
+                {
+                    isTouchingGround = false;
+                    isKillable = false;
+                    countCollider = 0;
+                    Debug.Log("SHOULD WORK");
+                }
+            }
+            else if(!isKillable)
             {
                 isChasing = true;
-                //gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, 0);
+                gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+                
                 if (Vector2.Distance(transform.position, target.position) > .7) //move towards character
                 {
-                    gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.MoveTowards(transform.position, target.position, EnemyCurrentSpeed * Time.deltaTime);
+                    transform.position = Vector2.MoveTowards(transform.position, target.position, EnemyCurrentSpeed * Time.deltaTime);
 
                 }
                 else if (Vector2.Distance(transform.position, target.position) < .7) //move towards the balloons
                 {
                     Vector2 targetDest = new Vector2(target.position.x, target.position.y);
                     targetDest.y += .2f;
-                    gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.MoveTowards(transform.position, targetDest, EnemyCurrentSpeed * Time.deltaTime);
+                    transform.position = Vector2.MoveTowards(transform.position, targetDest, EnemyCurrentSpeed * Time.deltaTime);
                 }
                 else if (Vector2.Distance(transform.position, target.position) < .3)
                 {
 
                 }
+
+                if (!isTouchingGround && !justCollided)
+                {
+                    isKillable = false;
+                    anim.SetInteger("Hit", 0);
+                    Debug.Log("NO LONGER KILLABLE");
+                }
+
             }
         }
 
-
         updateMovePath();
-        
 
     }
 
@@ -150,10 +219,10 @@ public class BasicEnemy1 : MonoBehaviour
 
     void SwitchedDir()
     {
-        if (lastPos.x < gameObject.GetComponent<Rigidbody2D>().position.x && !facingRight)
+        if ( (lastPos.x < gameObject.GetComponent<Rigidbody2D>().position.x && !facingRight) ||
+             (lastPos.x > gameObject.GetComponent<Rigidbody2D>().position.x && facingRight))
             FlipPlayer();
-        else if (lastPos.x > gameObject.GetComponent<Rigidbody2D>().position.x && facingRight)
-            FlipPlayer();
+        
     }
 
     void FlipPlayer()
@@ -166,7 +235,7 @@ public class BasicEnemy1 : MonoBehaviour
 
     public void ChangePosition(Vector3 pos)
     {
-        this.transform.position = pos;
+        //this.transform.position = pos;
     }
 
     public void ChangeVelocity(Vector3 pos)
@@ -175,84 +244,53 @@ public class BasicEnemy1 : MonoBehaviour
     }
 
 
-    // Update is called once per frame
-    /*void Update()
+    private void OnCollisionEnter2D(Collision2D collision)
     {
-        //ENEMY MOVEMENT
-        jumpFactor++;
-        CalculateMovement(GetPlayerLocation());
-        if (jump && jumpFactor > 20)
+        if (collision.gameObject.tag == "Player")
         {
-            Jump();
-            jumpFactor = 0;
+            if (collision.gameObject.GetComponent<Player_Move>() != null)
+            {
+                if(justCollided || isKillable) //if he was just hit
+                {
+                    anim.SetInteger("Hit", 2);
+                    anim.Play("e_falling");
+                    collision.gameObject.GetComponent<Player_Move>().ChangeVelocity(new Vector3(-collision.gameObject.GetComponent<Rigidbody2D>().velocity.x, bounciness, 0));
+                    Death();
+                    return;
+                }
+
+                collision.gameObject.GetComponent<Player_Move>().ChangeVelocity(new Vector3(-collision.gameObject.GetComponent<Rigidbody2D>().velocity.x, bounciness, 0));
+                
+                justCollided = true;
+                isKillable = true;
+                
+                anim.SetBool("Ascending", false);
+                anim.SetBool("Ground", false);
+                anim.SetInteger("Hit", 1);
+
+            }
         }
-        //ANIME
-
-
-        //ENEMY DIRECTION
-        if (XMoveDirection < 0.0f && !facingRight)
+        else if (collision.gameObject.tag == "Ground")
         {
-            FlipPlayer();
+            isTouchingGround = true;
+            Debug.Log("WE TOUCH GROUND BOI");
+            if (isKillable)
+            {
+                Debug.Log("ASODFIJ");
+                anim.SetInteger("Hit", 0);
+                anim.SetBool("Ground", true);
+                
+            }
+                
         }
-        else if (XMoveDirection > 0.0f && facingRight)
-        {
-            FlipPlayer();
-        }
-        //ENEMY PHYSICS
-        gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(XMoveDirection, 0) * EnemySpeed;
     }
 
-    Vector2 GetPlayerLocation()
+    private void Death()
     {
-        return Player.GetComponent<Rigidbody2D>().position;
-    }
+        this.GetComponent<BoxCollider2D>().enabled = false;
+        transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x, transform.position.y + .2f), EnemyCurrentSpeed);
 
-    void CalculateMovement(Vector2 playerPos)
-    {
-        float posx = gameObject.GetComponent<Rigidbody2D>().position.x;
-        float posy = gameObject.GetComponent<Rigidbody2D>().position.y;
-        Vector2 newDir = new Vector2(0,0);
-
-        //if(System.Math.Abs(playerPos.y - posy) > 4 && System.Math.Abs(playerPos.x - posx) > 3)
-        //{
-
-        //}
-
-        //X direction
-        if (playerPos.x < posx)
-            newDir.x = -1;
-        else if (playerPos.x > posx)
-            newDir.x = 1;
-
-        if (posy - playerPos.y < 2)
-            jump = true;
-        else if (playerPos.y > posy) //if player is above enemy..
-            if (System.Math.Abs(playerPos.x - posx) < 3) //Do not jump if the player is nearby
-                jump = false;
-            else
-                jump = true;
-
-        this.XMoveDirection = newDir.x;
-        
+        dead = true;
 
     }
-
-    void FlipPlayer()
-    {
-        facingRight = !facingRight;
-        Vector2 localScale = gameObject.transform.localScale;
-        localScale.x *= -1;
-        transform.localScale = localScale;
-    }
-
-    void Jump()
-    {
-        //JUMPING CODE
-        GetComponent<Rigidbody2D>().AddForce(Vector2.up * enemyJumpPower);
-    }
-
-    void CheckCollisions()
-    {
-
-    }*/
 }

@@ -24,7 +24,7 @@ public class Main_menu_play : MonoBehaviour
                 g.GetComponent<SpriteRenderer>().color = new Color(255, 102, 0, 1);
 
                 pause();
-                SceneManager.LoadScene("Map1");
+                SceneManager.LoadScene("FirstMap");
             }
 
 
