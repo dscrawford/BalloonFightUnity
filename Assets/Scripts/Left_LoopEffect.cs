@@ -22,7 +22,6 @@ public class Left_LoopEffect : MonoBehaviour
         if (collision.tag == "Player")
         {
             if (collision.gameObject.GetComponent<Player_Move>().getMoveX() < 0) {
-                Debug.Log("Changing pos");
                 collision.gameObject.GetComponent<Player_Move>().ChangePosition(new Vector3(rightXPos, collision.transform.position.y, collision.transform.position.z));
             }
         }

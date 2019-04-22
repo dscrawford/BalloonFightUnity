@@ -16,6 +16,8 @@ public class World_Bounds : MonoBehaviour
         minX = Mathf.Min(x);
         maxX = Mathf.Max(y);
         maxY = Mathf.Max(y);
+
+        Debug.Log("wrldbnds: " + minY);
     }
 
     public float getMinY()

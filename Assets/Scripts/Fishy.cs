@@ -6,7 +6,8 @@ public class Fishy : MonoBehaviour
 {
     List<GameObject> targets = new List<GameObject>();
     Vector2 fishPos = new Vector2();
-    public float biteSpotX1 = -.29f, biteSpotX2 = .22f, biteSpotY1 = -.94f, biteSpotY2 = -.7f;
+    private float biteSpotX1, biteSpotX2, biteSpotY1, biteSpotY2;
+    public float biteRangeY;
     int targetIndex;
     bool isBiting;
     bool reachedTop;
@@ -25,9 +26,13 @@ public class Fishy : MonoBehaviour
         targetIndex = -1;
         isBiting = false;
         reachedTop = false;
-        defaultPos = new Vector2(biteSpotX1 + .2f, biteSpotY1 - .2f);
+        defaultPos = transform.position;
         endPos = defaultPos;
 
+        biteSpotY1 = -1;
+        biteSpotY2 = biteSpotY1 + 0.20f;
+        biteSpotX1 = -0.32f;
+        biteSpotX2 = 0.25f;
     }
 
     // Update is called once per frame
@@ -71,6 +76,7 @@ public class Fishy : MonoBehaviour
                 if (Vector2.Distance(transform.position, new Vector2(transform.position.x, defaultPos.y)) < .05f)
                     isBiting = false;
             }
+            EatObject(targets[targetIndex]);
         }
 
     }
@@ -91,9 +97,22 @@ public class Fishy : MonoBehaviour
         return -1;
     }
 
+    void EatObject(GameObject obj)
+    {
+        if (obj.tag == "Player")
+        {
+            obj.GetComponent<Player_Move>().ChangePosition(transform.position);
+        }
+
+        if (obj.tag == "Enemy")
+        {
+            if (!obj.GetComponent<BasicEnemy1>().dead)
+                obj.GetComponent<BasicEnemy1>().ChangePosition(transform.position);
+        }
+    }
+
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        Debug.Log("hit something");
         //if there's a collision with one of the targets while the animation is playing, stop their movement and drag them down with the fish
         // then execute their Die() function
 

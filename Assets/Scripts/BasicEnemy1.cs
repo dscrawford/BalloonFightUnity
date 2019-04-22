@@ -28,6 +28,10 @@ public class BasicEnemy1 : MonoBehaviour
     private int countCollider;
     public float deathPos = -1;
     public bool dead;
+    private const float invincibleTime = 0.4f;
+    private float currInvincible = 0;
+    private bool invincible;
+
 
 
     public bool getFacingRight()
@@ -38,6 +42,25 @@ public class BasicEnemy1 : MonoBehaviour
     //The actual player
     public Transform target;
 
+    void Invincible()
+    {
+        if (currInvincible > 0)
+            currInvincible -= Time.deltaTime;
+        else
+            invincible = false;
+    }
+
+    void makeInvincible()
+    {
+        currInvincible = invincibleTime;
+        invincible = true;
+    }
+
+    void randJump()
+    {
+
+    }
+
     void Start()
     {
         anim = GetComponent<Animator>();
@@ -47,13 +70,16 @@ public class BasicEnemy1 : MonoBehaviour
         justCollided = false;
         isKillable = false;
         dead = false;
+        invincible = false;
         countCollider = 0;
     }
     void Update()
     {
+        Invincible();
+        checkGotHit();
         //SPEED
         //increase enemy speed if it's farther away from the player.
-        if(Vector2.Distance(transform.position, target.position) > .13)
+        if (Vector2.Distance(transform.position, target.position) > .13)
         {
             if (EnemyCurrentSpeed < EnemySpeedMAX)
                 EnemyCurrentSpeed += speedIncrement;
@@ -142,12 +168,11 @@ public class BasicEnemy1 : MonoBehaviour
             {
                 
                 //Debug.Log(countCollider);
-                if (++countCollider > 50)
+                if (++countCollider > 100)
                 {
                     isTouchingGround = false;
                     isKillable = false;
                     countCollider = 0;
-                    Debug.Log("SHOULD WORK");
                 }
             }
             else if(!isKillable)
@@ -163,7 +188,7 @@ public class BasicEnemy1 : MonoBehaviour
                 else if (Vector2.Distance(transform.position, target.position) < .7) //move towards the balloons
                 {
                     Vector2 targetDest = new Vector2(target.position.x, target.position.y);
-                    targetDest.y += .2f;
+                    targetDest.y += 0.25f;
                     transform.position = Vector2.MoveTowards(transform.position, targetDest, EnemyCurrentSpeed * Time.deltaTime);
                 }
                 else if (Vector2.Distance(transform.position, target.position) < .3)
@@ -175,7 +200,7 @@ public class BasicEnemy1 : MonoBehaviour
                 {
                     isKillable = false;
                     anim.SetInteger("Hit", 0);
-                    Debug.Log("NO LONGER KILLABLE");
+                    //Debug.Log("NO LONGER KILLABLE");
                 }
 
             }
@@ -246,12 +271,14 @@ public class BasicEnemy1 : MonoBehaviour
 
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        /*
         if (collision.gameObject.tag == "Player")
         {
             if (collision.gameObject.GetComponent<Player_Move>() != null)
             {
                 if(justCollided || isKillable) //if he was just hit
                 {
+
                     anim.SetInteger("Hit", 2);
                     anim.Play("e_falling");
                     collision.gameObject.GetComponent<Player_Move>().ChangeVelocity(new Vector3(-collision.gameObject.GetComponent<Rigidbody2D>().velocity.x, bounciness, 0));
@@ -270,18 +297,79 @@ public class BasicEnemy1 : MonoBehaviour
 
             }
         }
-        else if (collision.gameObject.tag == "Ground")
+        */
+        if (collision.gameObject.tag == "Ground")
         {
             isTouchingGround = true;
-            Debug.Log("WE TOUCH GROUND BOI");
             if (isKillable)
             {
-                Debug.Log("ASODFIJ");
                 anim.SetInteger("Hit", 0);
                 anim.SetBool("Ground", true);
                 
             }
                 
+        }
+    }
+
+    private void checkGotHit()
+    {
+        if (target.GetComponent<Player_Move>().isOnEnemy() && !invincible)
+        {
+            makeInvincible();
+            Debug.Log(invincible);
+            Transform collision = target;
+            if (collision.gameObject.GetComponent<Player_Move>() != null)
+            {
+                collision.gameObject.GetComponent<Player_Move>().ChangeVelocity(new Vector3(-collision.gameObject.GetComponent<Rigidbody2D>().velocity.x, bounciness, 0));
+
+                if (justCollided || isKillable) //if he was just hit
+                {
+                    anim.SetInteger("Hit", 2);
+                    anim.Play("e_falling");
+                    Death();
+                    return;
+                }
+
+
+
+                justCollided = true;
+                isKillable = true;
+
+                anim.SetBool("Ascending", false);
+                anim.SetBool("Ground", false);
+                anim.SetInteger("Hit", 1);
+
+            }
+        }
+        
+    }
+
+    private bool isOnPlayer()
+    {
+        float modelWidth = GetComponent<BoxCollider2D>().bounds.max.x - GetComponent<BoxCollider2D>().bounds.min.x;
+        Debug.DrawRay(new Vector3(GetComponent<BoxCollider2D>().bounds.min.x, GetComponent<BoxCollider2D>().bounds.min.y - 0.03f, 0), Vector3.right * modelWidth);
+
+        RaycastHit2D right = Physics2D.Raycast(new Vector2(GetComponent<BoxCollider2D>().bounds.min.x, GetComponent<BoxCollider2D>().bounds.min.y - 0.03f), Vector2.right, modelWidth);
+        RaycastHit2D left = Physics2D.Raycast(new Vector2(GetComponent<BoxCollider2D>().bounds.min.x, GetComponent<BoxCollider2D>().bounds.min.y - 0.03f), Vector2.left, modelWidth);
+
+        //Check if the right collider hit something
+        if (right.collider != null)
+            if (right.collider.tag == "Player")
+                return true;
+
+            //Check if the left collider hit something
+            else if (left.collider != null)
+                return left.collider.tag == "Player";
+
+        //If both null, then no collision.
+        return false;
+    }
+
+    private void hitPlayer()
+    {
+        if (isOnPlayer())
+        {
+            target.gameObject.GetComponent<Player_Move>().DecrementPlayerHealth();
         }
     }
 
@@ -291,6 +379,5 @@ public class BasicEnemy1 : MonoBehaviour
         transform.position = Vector2.MoveTowards(transform.position, new Vector2(transform.position.x, transform.position.y + .2f), EnemyCurrentSpeed);
 
         dead = true;
-
     }
 }

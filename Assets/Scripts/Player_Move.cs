@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Player_Move : MonoBehaviour
 {
@@ -8,6 +9,7 @@ public class Player_Move : MonoBehaviour
     public int playerSpeed = 10;
     public int playerJumpPower = 20;
     public float maxYVelocity = 5;
+    private int playerHP = 2;
 
      private float moveX, moveY;
     private bool facingRight = false;
@@ -21,6 +23,7 @@ public class Player_Move : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        checkLife();
         PlayerMove();
     }
 
@@ -31,6 +34,7 @@ public class Player_Move : MonoBehaviour
 
     void PlayerMove()
     {
+
         moveX = Input.GetAxis("Horizontal");
         moveY = GetComponent<Rigidbody2D>().velocity.y;
         //Controls
@@ -86,6 +90,27 @@ public class Player_Move : MonoBehaviour
         return moveY;
     }
 
+    public bool isOnEnemy()
+    {
+        float modelWidth = GetComponent<BoxCollider2D>().bounds.max.x - GetComponent<BoxCollider2D>().bounds.min.x;
+        Debug.DrawRay(new Vector3(GetComponent<BoxCollider2D>().bounds.min.x, GetComponent<BoxCollider2D>().bounds.min.y - 0.03f, 0), Vector3.right * modelWidth);
+
+        RaycastHit2D right = Physics2D.Raycast(new Vector2(GetComponent<BoxCollider2D>().bounds.min.x, GetComponent<BoxCollider2D>().bounds.min.y - 0.03f), Vector2.right, modelWidth);
+        RaycastHit2D left = Physics2D.Raycast(new Vector2(GetComponent<BoxCollider2D>().bounds.min.x, GetComponent<BoxCollider2D>().bounds.min.y - 0.03f), Vector2.left, modelWidth);
+
+        //Check if the right collider hit something
+        if (right.collider != null)
+            if (right.collider.tag == "Enemy")
+                return true;
+
+        //Check if the left collider hit something
+        else if (left.collider != null)
+            return left.collider.tag == "Enemy";
+
+        //If both null, then no collision.
+        return false;
+    }
+
     void FlipPlayer()
     {
         facingRight = !facingRight;
@@ -102,5 +127,23 @@ public class Player_Move : MonoBehaviour
     public void ChangeVelocity(Vector3 pos)
     {
         gameObject.GetComponent<Rigidbody2D>().velocity = pos;
+    }
+
+    public void DecrementPlayerHealth()
+    {
+        playerHP--;
+    }
+
+    private void checkLife()
+    {
+        if (playerHP <= 0 || transform.position.y < -1.2f)
+        {
+            Die();
+        }
+    }
+
+    private void Die()
+    {
+        SceneManager.LoadScene("Main_menu");
     }
 }

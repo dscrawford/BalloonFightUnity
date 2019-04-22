@@ -23,7 +23,6 @@ public class Right_LoopEffect : MonoBehaviour
         {
             if (collision.gameObject.GetComponent<Player_Move>().getMoveX() > 0)
             {
-                Debug.Log("Changing pos");
                 collision.gameObject.GetComponent<Player_Move>().ChangePosition(new Vector3(leftXPos, collision.transform.position.y, collision.transform.position.z));
             }
         }
