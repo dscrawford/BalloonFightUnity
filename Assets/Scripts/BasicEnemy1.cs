@@ -313,32 +313,36 @@ public class BasicEnemy1 : MonoBehaviour
 
     private void checkGotHit()
     {
-        if (target.GetComponent<Player_Move>().isOnEnemy() && !invincible)
+        GameObject hit = target.GetComponent<Player_Move>().isOnEnemy();
+        if (hit != null && !invincible)
         {
-            makeInvincible();
-            Debug.Log(invincible);
-            Transform collision = target;
-            if (collision.gameObject.GetComponent<Player_Move>() != null)
+            if (hit == this.gameObject)
             {
-                collision.gameObject.GetComponent<Player_Move>().ChangeVelocity(new Vector3(-collision.gameObject.GetComponent<Rigidbody2D>().velocity.x, bounciness, 0));
-
-                if (justCollided || isKillable) //if he was just hit
+                makeInvincible();
+                Debug.Log(invincible);
+                Transform collision = target;
+                if (collision.gameObject.GetComponent<Player_Move>() != null)
                 {
-                    anim.SetInteger("Hit", 2);
-                    anim.Play("e_falling");
-                    Death();
-                    return;
+                    collision.gameObject.GetComponent<Player_Move>().ChangeVelocity(new Vector3(-collision.gameObject.GetComponent<Rigidbody2D>().velocity.x, bounciness, 0));
+
+                    if (justCollided || isKillable) //if he was just hit
+                    {
+                        anim.SetInteger("Hit", 2);
+                        anim.Play("e_falling");
+                        Death();
+                        return;
+                    }
+
+
+
+                    justCollided = true;
+                    isKillable = true;
+
+                    anim.SetBool("Ascending", false);
+                    anim.SetBool("Ground", false);
+                    anim.SetInteger("Hit", 1);
+
                 }
-
-
-
-                justCollided = true;
-                isKillable = true;
-
-                anim.SetBool("Ascending", false);
-                anim.SetBool("Ground", false);
-                anim.SetInteger("Hit", 1);
-
             }
         }
         

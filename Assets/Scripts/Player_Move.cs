@@ -13,6 +13,7 @@ public class Player_Move : MonoBehaviour
 
      private float moveX, moveY;
     private bool facingRight = false;
+    private bool electrocute = false;
 
     // Start is called before the first frame update
     void Start()
@@ -24,7 +25,26 @@ public class Player_Move : MonoBehaviour
     void Update()
     {
         checkLife();
-        PlayerMove();
+        if(!electrocute)
+            PlayerMove();
+        else
+        {
+            anim.SetBool("Shocked", true);
+            gameObject.GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+            StartCoroutine(pause());
+            gameObject.GetComponent<Rigidbody2D>().velocity = new Vector2(0, -1f);
+        }
+    }
+
+    private void checkDeathPos()
+    {
+        if (this.transform.position.y < -1f)
+            Die();
+    }
+
+    IEnumerator pause()
+    {
+        yield return new WaitForSeconds(2);
     }
 
     public float getMoveX()
@@ -41,6 +61,7 @@ public class Player_Move : MonoBehaviour
         if (Input.GetButtonDown("Jump")) { 
             Jump();
         }
+
         //Animation
         if(Input.GetButtonDown("Jump"))
         {
@@ -90,7 +111,7 @@ public class Player_Move : MonoBehaviour
         return moveY;
     }
 
-    public bool isOnEnemy()
+    public GameObject isOnEnemy()
     {
         float modelWidth = GetComponent<BoxCollider2D>().bounds.max.x - GetComponent<BoxCollider2D>().bounds.min.x;
         Debug.DrawRay(new Vector3(GetComponent<BoxCollider2D>().bounds.min.x, GetComponent<BoxCollider2D>().bounds.min.y - 0.03f, 0), Vector3.right * modelWidth);
@@ -101,15 +122,18 @@ public class Player_Move : MonoBehaviour
         //Check if the right collider hit something
         if (right.collider != null)
             if (right.collider.tag == "Enemy")
-                return true;
+                return right.collider.gameObject;
+
 
         //Check if the left collider hit something
         else if (left.collider != null)
-            return left.collider.tag == "Enemy";
+            if(left.collider.tag == "Enemy")
+                return left.collider.gameObject;
 
         //If both null, then no collision.
-        return false;
+        return null;
     }
+
 
     void FlipPlayer()
     {
@@ -145,5 +169,11 @@ public class Player_Move : MonoBehaviour
     private void Die()
     {
         SceneManager.LoadScene("Main_menu");
+    }
+
+    public void Electrocute()
+    {
+        electrocute = true;
+        this.GetComponent<BoxCollider2D>().enabled = false;
     }
 }
